@@ -1,0 +1,33 @@
+---
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+editor_options: 
+  chunk_output_type: console
+output: rmarkdown::html_vignette
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(kableExtra)
+
+#library(rgdal)
+library(dplyr)
+library(viridis)
+library(kableExtra)
+library(lubridate)
+
+```
+
+**Booking update**
+The following list shows the expected bookings and meals for today on campus:
+
+```{r  c05, echo=F}
+
+tmp <- data.frame("date"="2024-06-07", num_persons=7, breakfast=7, lunch=3, dinner=7)
+
+tmp %>%
+  kbl(row.names = FALSE) %>%
+  kable_styling() %>% 
+  column_spec (1:5,border_left = T, border_right = T) 
+
+```
+
