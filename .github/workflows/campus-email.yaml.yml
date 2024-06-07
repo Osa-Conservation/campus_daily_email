@@ -1,8 +1,8 @@
 name: scheduleRenderbook
 on:     
   push: 
-  schedule:     
-     - cron: "15 13 * * *"  
+#  schedule:     
+#     - cron: "15 13 * * *"  
 jobs:
   bookdown:
     name: Render-Report-Send-Email
@@ -69,7 +69,7 @@ jobs:
           # Required mail subject:
           subject: Campus email update 
           # Required recipients' addresses:
-          to: chrisbeirne@osaconservation.org
+          to: chrisbeirne@osaconservation.org; eleanorflatt@osaconservation.org
           # Required sender full name (address can be skipped):
           from: Chris Beirne # <user@example.com>
           # Optional plain body:

@@ -20,6 +20,8 @@ library(lubridate)
 **Booking update**
 The following list shows the expected bookings and meals for today on campus:
 
+**NOTE THIS IS JUST A BULLSHIT TEST**
+
 ```{r  c05, echo=F}
 
 tmp <- data.frame("date"="2024-06-07", num_persons=7, breakfast=7, lunch=3, dinner=7)
