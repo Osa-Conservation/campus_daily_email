@@ -11,7 +11,7 @@ library(kableExtra)
 
 #library(rgdal)
 library(dplyr)
-library(viridis)
+library(viridis) 
 library(kableExtra)
 library(lubridate)
 
