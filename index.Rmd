@@ -20,7 +20,7 @@ library(googlesheets4)
 # Using this guide https://www.obrien.page/blog/2023/03_10_google_and_github_actions/
 
 googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
-#dat <- read_sheet("1Q8ir4HNvP2zBFwItINhc1rmBvW2MdHnJ-mUULh_Z_oc")
+dat <- read_sheet("1Q8ir4HNvP2zBFwItINhc1rmBvW2MdHnJ-mUULh_Z_oc")
 
 ```
 
@@ -31,12 +31,12 @@ The following list shows the expected bookings and meals for today on campus:
 
 ```{r  c05, echo=F}
  
-#tmp <- dat[1:3,1:3]
+tmp <- dat[1:3,1:3]
 
-#tmp %>%
-#  kbl(row.names = FALSE) %>%
-#  kable_styling() %>% 
-#  column_spec (1:3,border_left = T, border_right = T) 
+tmp %>%
+  kbl(row.names = FALSE) %>%
+  kable_styling() %>% 
+  column_spec (1:3,border_left = T, border_right = T) 
 
 ```
 
