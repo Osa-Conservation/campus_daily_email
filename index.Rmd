@@ -7,8 +7,6 @@ output: rmarkdown::html_vignette
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(kableExtra)
-
 #library(rgdal)
 library(dplyr)
 library(glue)
