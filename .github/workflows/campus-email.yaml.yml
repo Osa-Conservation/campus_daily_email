@@ -24,8 +24,6 @@ jobs:
         run: Rscript -e "install.packages('glue', type='source')"
       - name: Install kableExtra
         run: Rscript -e "install.packages('kableExtra')"
-      #- name: Install rgdal
-      #  run: Rscript -e "install.packages('rgdal', type='mac.binary')"
       - name: Install dplyr
         run: Rscript -e "install.packages('dplyr')"
       - name: Install viridis
@@ -36,7 +34,7 @@ jobs:
         run: Rscript -e "install.packages('googlesheets4')"
       - name: Render Book
         env:
-          GOOGLE_AUTHENTICATION_CREDENTIALS: ${{ secrets.GDRIVE_PAT }}
+          GDRIVE_PAT: ${{ secrets.GDRIVE_PAT }}
         run: Rscript -e 'rmarkdown::render("index.Rmd")'
       - uses: actions/upload-artifact@v4
         with:
