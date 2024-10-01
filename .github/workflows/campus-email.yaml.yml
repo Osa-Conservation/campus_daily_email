@@ -20,6 +20,8 @@ jobs:
           TINYTEX_INSTALLER: TinyTeX
       - name: Install rmarkdown
         run: Rscript -e 'install.packages(c("rmarkdown"))'
+      - name: Install glue
+        run: Rscript -e "install.packages('glue')"
       - name: Install kableExtra
         run: Rscript -e "install.packages('kableExtra')"
       #- name: Install rgdal
