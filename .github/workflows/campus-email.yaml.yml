@@ -30,9 +30,11 @@ jobs:
         run: Rscript -e "install.packages('viridis')"
       - name: Install lubridate
         run: Rscript -e "install.packages('lubridate')"
+      - name: Install googlesheets4
+        run: Rscript -e "install.packages('googlesheets4')"
       - name: Render Book
         env:
-          GOOGLE_AUTHENTICATION_CREDENTIALS: ${{ secrets.GOOGLE_AUTHENTICATION_CREDENTIALS }}
+          GOOGLE_AUTHENTICATION_CREDENTIALS: ${{ secrets.GDRIVE_PAT }}
         run: Rscript -e 'rmarkdown::render("index.Rmd")'
       - uses: actions/upload-artifact@v4
         with:
@@ -69,7 +71,7 @@ jobs:
           # Required mail subject:
           subject: Campus email update 
           # Required recipients' addresses:
-          to: chrisbeirne@osaconservation.org; eleanorflatt@osaconservation.org
+          to: chrisbeirne@osaconservation.org; #eleanorflatt@osaconservation.org
           # Required sender full name (address can be skipped):
           from: Chris Beirne # <user@example.com>
           # Optional plain body:
