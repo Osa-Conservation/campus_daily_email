@@ -19,7 +19,7 @@ library(googlesheets4)
 
 # Using this guide https://www.obrien.page/blog/2023/03_10_google_and_github_actions/
 
-#gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
+googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
 #dat <- read_sheet("1Q8ir4HNvP2zBFwItINhc1rmBvW2MdHnJ-mUULh_Z_oc")
 
 ```
