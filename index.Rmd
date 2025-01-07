@@ -108,7 +108,7 @@ tmp %>%
 
 **Departures in the next 7 days** The following list shows the groups which should be leaving (confirmed and provisional):
 
-```{r  c05, echo=F}
+```{r  c05a, echo=F}
  
 tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
 tmp <- tmp[, c("Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
