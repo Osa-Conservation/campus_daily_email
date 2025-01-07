@@ -69,7 +69,7 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
-          subject: Campus email update 
+          subject: Campus guests and booking update [`r Sys.Date()`] 
           # Required recipients' addresses:
           to: chrisbeirne@osaconservation.org; #eleanorflatt@osaconservation.org
           # Required sender full name (address can be skipped):

@@ -23,7 +23,7 @@ dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccc
 # remove everything without a name
 dat <- dat[is.na(dat$Name)==F,]
 # Remove the year row
-dat <- dat[dat$Name!=c(2025,2026,2027),]
+dat <- dat[!(dat$Name %in% c(2025,2026,2027)),]
 
 # Get todays date
 t <- Sys.Date()
@@ -34,11 +34,13 @@ dat_complete <- dat[is.na(dat$`Arrival Date`)==F & is.na(dat$`Departure Date`)==
 dat_complete <- dat_complete[is.na(dat_complete$`# people [adults]`)==F,]
 # Subset to just confirmed
 dat_confirmed <- dat_complete[dat_complete$`Booking status` %in% c("Arrived", "Confirmed", "Confirmed_100", "Confirmed_50" ),]
+```
 
+```{r loop1, include=FALSE}
 # For each booking, create a list of the number of people and the dates active
 daily_guests <- list()
-i <- 2
-colnames(tmp)
+#i <- 2
+
 for(i in 1:nrow(dat_confirmed))
 {
   tmp <- dat_confirmed[i,]
