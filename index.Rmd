@@ -62,7 +62,7 @@ tmp <- daily_guests[daily_guests$Date==t,]
 
 ```
 
-**Today's visitor count** The number of people currently listed as "confirmed" for today's date are: **`r sum(tmp$Adults) + sum(tmp$Children)`** - (`r sum(tmp$Adults)` adults and `r sum(tmp$Children)`.
+**Today's visitor count** The number of people currently listed as "confirmed" for today's date are: **`r sum(tmp$Adults) + sum(tmp$Children)`** - (`r sum(tmp$Adults)` adults and `r sum(tmp$Children)` children).
 
 The table this was calculated from (will delete if it looks correct):
 
@@ -94,7 +94,6 @@ tmp %>%
 **Arrivals in the next 7 days** The following list shows the groups which should be arriving (confirmed and provisional):
 
 ```{r  c05, echo=F}
- table(dat$`Booking status`)
 tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
 tmp <- tmp[, c("Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
 
