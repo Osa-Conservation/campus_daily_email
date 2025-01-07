@@ -15,27 +15,111 @@ library(lubridate)
 library(googlesheets4)
 
 
-
 # Using this guide https://www.obrien.page/blog/2023/03_10_google_and_github_actions/
 
 googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
-dat <- read_sheet("1Q8ir4HNvP2zBFwItINhc1rmBvW2MdHnJ-mUULh_Z_oc")
+dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnnccccccccccccccc")
+
+# remove everything without a name
+dat <- dat[is.na(dat$Name)==F,]
+# Remove the year row
+dat <- dat[dat$Name!=c(2025,2026,2027),]
+
+# Get todays date
+t <- Sys.Date()
+
+# Create a list of confirmed/arrived reservations with start and end dates.
+dat_complete <- dat[is.na(dat$`Arrival Date`)==F & is.na(dat$`Departure Date`)==F,]
+# Subset to rows with booking numbers
+dat_complete <- dat_complete[is.na(dat_complete$`# people [adults]`)==F,]
+# Subset to just confirmed
+dat_confirmed <- dat_complete[dat_complete$`Booking status` %in% c("Arrived", "Confirmed", "Confirmed_100", "Confirmed_50" ),]
+
+# For each booking, create a list of the number of people and the dates active
+daily_guests <- list()
+i <- 2
+colnames(tmp)
+for(i in 1:nrow(dat_confirmed))
+{
+  tmp <- dat_confirmed[i,]
+  if(tmp$`Arrival Date`==tmp$`Departure Date`)
+  {
+    daily_guests[[i]] <- data.frame(Name=tmp$Name, Last_Name = tmp$`Last Name`,Date=tmp$`Arrival Date`[1],
+                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1])     
+  } else {
+  daily_guests[[i]] <- data.frame(Name=tmp$Name,Last_Name = tmp$`Last Name`, Date=seq(tmp$`Arrival Date`, tmp$`Departure Date`, by=1 ),
+             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1]) 
+  }
+}
+
+daily_guests <- bind_rows(daily_guests)
+
+
+# Today
+tmp <- daily_guests[daily_guests$Date==t,]
 
 ```
 
-**Booking update**
-The following list shows the expected bookings and meals for today on campus:
+**Today's visitor count** The number of people currently listed as "confirmed" for today's date are: **`r sum(tmp$Adults) + sum(tmp$Children)`** - (`r sum(tmp$Adults)` adults and `r sum(tmp$Children)`.
 
-**NOTE THIS IS JUST A BULLSHIT TEST**
+The table this was calculated from (will delete if it looks correct):
 
-```{r  c05, echo=F}
- 
-tmp <- dat[1:3,1:3]
-
+```{r, echo=F}
 tmp %>%
   kbl(row.names = FALSE) %>%
   kable_styling() %>% 
   column_spec (1:3,border_left = T, border_right = T) 
+```
+
+**Count for the next 7 days**
+
+```{r, echo=F, include=F}
+tmp <- daily_guests[daily_guests$Date>=t & daily_guests$Date<=(t+7) ,]
+tmp <- tmp %>% group_by(Date) %>% summarise(Adults=sum(Adults), Children=sum(Children))
+tmp$Day <- weekdays(tmp$Date)
+tmp <- tmp[,c("Date", "Day", "Adults", "Children")]
+tmp$Total <- tmp$Adults+tmp$Children
+```
+
+```{r, echo=F}
+tmp %>%
+  kbl(row.names = FALSE) %>%
+  kable_styling() %>% 
+  column_spec (1:3,border_left = T, border_right = T) 
+```
+
+
+**Arrivals in the next 7 days** The following list shows the groups which should be arriving (confirmed and provisional):
+
+```{r  c05, echo=F}
+ table(dat$`Booking status`)
+tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
+tmp <- tmp[, c("Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
 
 ```
+
+```{r, echo=F}
+tmp %>%
+  kbl(row.names = FALSE) %>%
+  kable_styling() %>% 
+  column_spec (1:3,border_left = T, border_right = T) 
+```
+
+
+**Departures in the next 7 days** The following list shows the groups which should be leaving (confirmed and provisional):
+
+```{r  c05, echo=F}
+ 
+tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
+tmp <- tmp[, c("Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
+
+```
+
+```{r, echo=F}
+tmp %>%
+  kbl(row.names = FALSE) %>%
+  kable_styling() %>% 
+  column_spec (1:3,border_left = T, border_right = T) 
+```
+
 
