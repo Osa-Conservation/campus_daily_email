@@ -71,7 +71,7 @@ jobs:
           # Required mail subject:
           subject: Campus guests and booking update  
           # Required recipients' addresses:
-          to: eleanorflatt@osaconservation.org; andydiaz@osaconservation.org; reservations@osaconservation.org; danielalvarez@osaconservation.org; rociollamas@osaconservation.org
+          to: eleanorflatt@osaconservation.org; andydiaz@osaconservation.org; reservations@osaconservation.org; danielalvarez@osaconservation.org; rociollamas@osaconservation.org;iselacambronero@osaconservation.org; marielaprendas@osaconservation.org; gilverfernandez@osaconservation.org; operations@osaconservation.org
           # Required sender full name (address can be skipped):
           from: Chris Beirne # <user@example.com>
           # Optional plain body:
