@@ -21,10 +21,10 @@ googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@
 
 dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnncccccccccccccc")
 
-# remove everything without a name
-dat <- dat[is.na(dat$Name)==F,]
+dat <- dat[is.na(dat$'First Name')==F,]
+
 # Remove the year row
-dat <- dat[!(dat$Name %in% c(2025,2026,2027)),]
+dat <- dat[!(dat$'First Name' %in% c(2025,2026,2027)),]
 
 # Get todays date
 t <- Sys.Date()
@@ -47,10 +47,10 @@ for(i in 1:nrow(dat_confirmed))
   tmp <- dat_confirmed[i,]
   if(tmp$`Arrival Date`==tmp$`Departure Date`)
   {
-    daily_guests[[i]] <- data.frame(Name=tmp$Name, Last_Name = tmp$`Last Name`,Date=tmp$`Arrival Date`[1],
+    daily_guests[[i]] <- data.frame(Name=tmp$`First Name`, Last_Name = tmp$`Last Name`,Date=tmp$`Arrival Date`[1],
                                       Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1])     
   } else {
-  daily_guests[[i]] <- data.frame(Name=tmp$Name,Last_Name = tmp$`Last Name`, Date=seq(tmp$`Arrival Date`, tmp$`Departure Date`, by=1 ),
+  daily_guests[[i]] <- data.frame(Name=tmp$`First Name`,Last_Name = tmp$`Last Name`, Date=seq(tmp$`Arrival Date`, tmp$`Departure Date`, by=1 ),
              Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1]) 
   }
 }
@@ -112,7 +112,7 @@ tmp %>%
 ```{r  c05a, echo=F}
  
 tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
-tmp <- tmp[, c("Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
+tmp <- tmp[, c("First Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
 
 ```
 
