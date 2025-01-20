@@ -96,7 +96,7 @@ tmp %>%
 
 ```{r  c05, echo=F}
 tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
-tmp <- tmp[, c("Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
+tmp <- tmp[, c("First Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# Nights", "# people [adults]", "# people [kids u12]")]
 
 ```
 
