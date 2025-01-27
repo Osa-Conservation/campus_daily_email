@@ -19,7 +19,7 @@ library(googlesheets4)
 
 googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
 
-dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnncccccccccccccc")
+dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnnccccccccccccccc")
 
 dat <- dat[is.na(dat$'First Name')==F,]
 
@@ -42,17 +42,19 @@ dat_confirmed <- dat_complete[dat_complete$`Booking status` %in% c("Arrived", "C
 daily_guests <- list()
 #i <- 2
 
+logic_string <- c("-", "Yes")
+
 for(i in 1:nrow(dat_confirmed))
 {
   tmp <- dat_confirmed[i,]
   if(tmp$`Arrival Date`==tmp$`Departure Date`)
   {
     daily_guests[[i]] <- data.frame(Name=tmp$`First Name`, Last_Name = tmp$`Last Name`,Date=tmp$`Arrival Date`[1],
-                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1])     
+                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1], Arrive_today="Yes")     
   } else {
   daily_guests[[i]] <- data.frame(Name=tmp$`First Name`,Last_Name = tmp$`Last Name`, Date=seq(tmp$`Arrival Date`, tmp$`Departure Date`, by=1 ),
-             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1]) 
-  }
+             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1],Arrive_today=logic_string[as.numeric(tmp$`Arrival Date`==t)+1])
+    }
 }
 
 daily_guests <- bind_rows(daily_guests)
