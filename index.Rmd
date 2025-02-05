@@ -50,18 +50,25 @@ for(i in 1:nrow(dat_confirmed))
   if(tmp$`Arrival Date`==tmp$`Departure Date`)
   {
     daily_guests[[i]] <- data.frame(Name=tmp$`First Name`, Last_Name = tmp$`Last Name`,Date=tmp$`Arrival Date`[1],
-                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1], Arrive_today="Yes", Day_visit_only="Yes")     
+                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1], Arrive_today="Yes", Departure="Today")     
   } else {
   daily_guests[[i]] <- data.frame(Name=tmp$`First Name`,Last_Name = tmp$`Last Name`, Date=seq(tmp$`Arrival Date`, tmp$`Departure Date`, by=1 ),
-             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1],Arrive_today=logic_string[as.numeric(tmp$`Arrival Date`==t)+1], Day_visit_only="-")
+             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1],Arrive_today=logic_string[as.numeric(tmp$`Arrival Date`==t)+1], Departure=as.character(tmp$`Departure Date`[1]))
     }
 }
 
 daily_guests <- bind_rows(daily_guests)
 
+# Update if the departure date is today
+daily_guests$Departure[daily_guests$Departure == as.character(daily_guests$Date)] <- "Today"
+
+
 
 # Today
 tmp <- daily_guests[daily_guests$Date==t,]
+
+# Order first by arrive today, then by depart today
+tmp <- tmp[order(tmp$Arrive_today, tmp$Departure),]
 
 ```
 
