@@ -42,7 +42,7 @@ dat_confirmed <- dat_complete[dat_complete$`Booking status` %in% c("Arrived", "C
 daily_guests <- list()
 #i <- 2
 
-logic_string <- c("-", "Yes")
+logic_string <- c("No", "Yes")
 
 for(i in 1:nrow(dat_confirmed))
 {
