@@ -18,8 +18,8 @@ library(googlesheets4)
 # Using this guide https://www.obrien.page/blog/2023/03_10_google_and_github_actions/
 
 googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
-
-dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnnccccccccccccccc")
+gs4_auth()
+dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnnccccccccccc")
 
 dat <- dat[is.na(dat$'First Name')==F,]
 
