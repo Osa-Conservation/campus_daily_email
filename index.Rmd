@@ -9,7 +9,7 @@ output: rmarkdown::html_vignette
 knitr::opts_chunk$set(echo = TRUE)
 library(dplyr)
 library(glue)
-library(viridis) 
+#library(viridis) 
 library(kableExtra)
 library(lubridate)
 library(googlesheets4)
