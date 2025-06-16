@@ -36,7 +36,12 @@ dat_complete <- dat[is.na(dat$`Arrival Date`)==F & is.na(dat$`Departure Date`)==
 # Subset to rows with booking numbers
 dat_complete <- dat_complete[is.na(dat_complete$`# people [adults]`)==F,]
 # Subset to just confirmed
-dat_confirmed <- dat_complete[dat_complete$`Booking status` %in% c("Arrived", "Confirmed", "Confirmed_100", "Confirmed_50" ),]
+#dat_confirmed <- dat_complete[dat_complete$`Booking status` %in% c("Arrived", "Confirmed", #"Confirmed_100", "Confirmed_50", "Arrived_falta pago"),]
+
+# Subset not not cancelled
+dat_confirmed <- dat_complete[dat_complete$`Booking status` != "Cancelled",]
+
+
 ```
 
 ```{r loop1, include=FALSE}
@@ -72,6 +77,11 @@ tmp <- daily_guests[daily_guests$Date==t,]
 # Order first by arrive today, then by depart today
 tmp <- tmp[order(tmp$Arrive_today, tmp$Departure),]
 
+
+# Reverse so news are at the top
+
+
+
 ```
 
 **Today's visitor count = `r sum(tmp$Adults) + sum(tmp$Children)`** 
@@ -82,7 +92,11 @@ The guest list:
 ```{r, echo=F}
 tmp %>%
   kbl(row.names = FALSE , format = "html") %>%
-  kable_styling() 
+  kable_styling()  %>%
+  row_spec(
+    which(tmp$Arrive_today == "Yes"),  # Rows where Approved == Yes
+    background = "lightgreen"
+  )
 
 ```
 
@@ -90,7 +104,7 @@ tmp %>%
 
 ```{r, echo=F, include=F}
 tmp <- daily_guests[daily_guests$Date>=t & daily_guests$Date<=(t+7) ,]
-tmp <- tmp %>% group_by(Date) %>% summarise(Adults=sum(Adults), Children=sum(Children))
+tmp <- tmp %>% group_by(Date) %>% summarise(Adults=sum(Adults, na.rm=T), Children=sum(Children, na.rm=T))
 tmp$Day <- weekdays(tmp$Date)
 tmp <- tmp[,c("Date", "Day", "Adults", "Children")]
 tmp$Total <- tmp$Adults+tmp$Children
