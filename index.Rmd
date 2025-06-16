@@ -94,9 +94,13 @@ tmp %>%
   kbl(row.names = FALSE , format = "html") %>%
   kable_styling()  %>%
   row_spec(
+    which(tmp$Departure == "Today"),  # Rows where Approved == Yes
+    background = "#ffa533"
+  ) %>%
+  row_spec(
     which(tmp$Arrive_today == "Yes"),  # Rows where Approved == Yes
     background = "lightgreen"
-  )
+  ) 
 
 ```
 
