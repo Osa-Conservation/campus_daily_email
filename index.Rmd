@@ -20,7 +20,7 @@ library(googlesheets4)
 googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
 
 
-dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="ccccccDcDcnnnnnnnccccccccc")
+dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="ccccccDcDcnnnnnnncccccccc")
 #head(dat)
 
 dat <- dat[is.na(dat$'First Name')==F,]
@@ -57,10 +57,12 @@ for(i in 1:nrow(dat_confirmed))
   if(tmp$`Arrival Date`==tmp$`Departure Date`)
   {
     daily_guests[[i]] <- data.frame(Name=tmp$`First Name`, Last_Name = tmp$`Last Name`,Date=tmp$`Arrival Date`[1],
-                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1], Arrive_today="Yes", Departure="Today")     
+                                      Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1], Arrive_today="Yes", Departure="Today", DR_MC=tmp$`Dietry Restrictions/ 
+Medical Conditions`[1])     
   } else {
   daily_guests[[i]] <- data.frame(Name=tmp$`First Name`,Last_Name = tmp$`Last Name`, Date=seq(tmp$`Arrival Date`, tmp$`Departure Date`, by=1 ),
-             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1],Arrive_today=logic_string[as.numeric(tmp$`Arrival Date`==t)+1], Departure=as.character(tmp$`Departure Date`[1]))
+             Adults=tmp$`# people [adults]`[1],Children= tmp$`# people [kids u12]`[1],Arrive_today=logic_string[as.numeric(tmp$`Arrival Date`==t)+1], Departure=as.character(tmp$`Departure Date`[1]), DR_MC=tmp$`Dietry Restrictions/ 
+Medical Conditions`[1])
     }
 }
 
