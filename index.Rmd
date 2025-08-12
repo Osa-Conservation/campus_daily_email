@@ -41,7 +41,7 @@ dat_complete <- dat_complete[is.na(dat_complete$`# people [adults]`)==F,]
 # Subset not not cancelled
 dat_confirmed <- dat_complete[dat_complete$`Booking status` != "Cancelled",]
 
-
+ 
 ```
 
 ```{r loop1, include=FALSE}
