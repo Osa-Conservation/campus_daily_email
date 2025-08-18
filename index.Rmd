@@ -125,7 +125,7 @@ tmp %>%
 
 ```{r  c05, echo=F}
 tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
-tmp <- tmp[, c("First Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# \nNights", "# people [adults]", "# people [kids u12]")]
+tmp <- tmp[, c("First Name", "Last Name", "Booking status", "Arrival Date", "# \nNights", "# people [adults]", "# people [kids u12]")]
 
 ```
 
@@ -141,7 +141,7 @@ tmp %>%
 ```{r  c05a, echo=F}
  
 tmp <- dat[dat$`Arrival Date`> t & dat$`Arrival Date`<=(t+7) & is.na(dat$`Arrival Date`)==F & dat$`Booking status`!="Cancelled",]
-tmp <- tmp[, c("First Name", "Last Name", "Visitor Type", "Booking status", "Arrival Date", "# \nNights", "# people [adults]", "# people [kids u12]")]
+tmp <- tmp[, c("First Name", "Last Name", "Booking status", "Arrival Date", "# \nNights", "# people [adults]", "# people [kids u12]")]
 
 ```
 
