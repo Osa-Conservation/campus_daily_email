@@ -20,7 +20,7 @@ library(googlesheets4)
 googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT')) # google-sheets-github@astral-web-375220.iam.gserviceaccount.com
 
 
-dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="cccccDcDcnnnnnnncccccccc")
+dat <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", col_type="ccccccDcDcnnnnnnnccccccccc")
 #head(dat)
 
 dat <- dat[is.na(dat$'First Name')==F,]
