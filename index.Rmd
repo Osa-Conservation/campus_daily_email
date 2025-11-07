@@ -130,7 +130,7 @@ tmp <- tmp[, c("First Name", "Last Name", "Booking status", "Arrival Date", "# \
 ```
 
 ```{r, echo=F}
-tmp %>%
+tmp %>% 
   kbl(row.names = FALSE) %>%
   kable_styling() %>% 
   column_spec (1:3,border_left = T, border_right = T) 
