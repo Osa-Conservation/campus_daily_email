@@ -2,95 +2,65 @@ name: scheduleRenderbook
 on:     
   push: 
   schedule:     
-     - cron: "45 11 * * *"  
+     - cron: "45 11 * * *"  # Runs at 11:45 UTC daily
+     
 jobs:
   bookdown:
     name: Render-Report-Send-Email
-    runs-on: macos-latest # ubuntu-latest #  macos USES 10 TIMES THE MINUTES
+    runs-on: ubuntu-latest # Changed from macos - MUCH cheaper and faster
     steps: 
-      - uses: actions/checkout@v2
-      # More detail here, https://github.com/r-lib/actions
-      # It's possible to define R and pandoc version if desired
+      - uses: actions/checkout@v4 # Updated to v4
+      
       - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.0' # Specify version for consistency
+          
       - uses: r-lib/actions/setup-pandoc@v2
+      
       - name: Install TinyTeX
         uses: r-lib/actions/setup-tinytex@v2
         env:
-          # install full prebuilt version
           TINYTEX_INSTALLER: TinyTeX
-      - name: Install rmarkdown
-        run: Rscript -e 'install.packages(c("rmarkdown"))'
-      - name: Install glue
-        run: Rscript -e "install.packages('glue', type='source')"
-      - name: Install kableExtra
-        run: Rscript -e "install.packages('kableExtra')"
-      - name: Install dplyr
-        run: Rscript -e "install.packages('dplyr')"
-      - name: Install viridis
-        run: Rscript -e "install.packages('viridis')"
-      - name: Install lubridate
-        run: Rscript -e "install.packages('lubridate')"
-      - name: Install googlesheets4
-        run: Rscript -e "install.packages('googlesheets4')"
+      
+      # OPTIMIZATION: Install all packages in one step
+      - name: Install R packages
+        run: |
+          Rscript -e 'install.packages(c("rmarkdown", "glue", "kableExtra", "dplyr", "viridis", "lubridate", "googlesheets4"), repos="https://cloud.r-project.org")'
+      
+      # OPTIMIZATION: Cache R packages to speed up builds
+      - name: Cache R packages
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ hashFiles('**/renv.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-r-
+      
       - name: Render Book
         env:
           GDRIVE_PAT: ${{ secrets.GDRIVE_PAT }}
         run: Rscript -e 'rmarkdown::render("index.Rmd")'
-      - uses: actions/upload-artifact@v4
+      
+      # Optional: Keep artifact for debugging
+      - uses: actions/upload-artifact@v4 # Updated to v4
+        if: always() # Upload even if render fails
         with:
-          name: index.html
+          name: index-html
           path: index.html
-
-
-#  sending-email: 
-#    runs-on: ubuntu-latest
- #   steps:
- #     - name: Check out repository code
- #       uses: actions/checkout@v2
+          retention-days: 7 # Auto-cleanup after 7 days
+      
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
-          # Specify connection via URL (replaces server_address, server_port, secure,
-          # username and password)
-          #
-          # Format:
-          #
-          #  * smtp://user:password@server:port
-          #  * smtp+starttls://user:password@server:port
-          # connection_url: ${{secrets.MAIL_CONNECTION}}
-          # Required mail server address if not connection_url:
           server_address: smtp.gmail.com
-          # Server port, default 25:
           server_port: 465
-          # Optional whether this connection use TLS (default is true if server_port is 465)
           secure: true
-          # Optional (recommended) mail server username:
           username: ${{secrets.MAIL_USERNAME}}
-          # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
-          # Required mail subject:
-          subject: Campus guests and booking update  
-          # Required recipients' addresses:
-          to: eleanorflatt@osaconservation.org; andydiaz@osaconservation.org; reservations@osaconservation.org; danielalvarez@osaconservation.org; iselacambronero@osaconservation.org; marielaprendas@osaconservation.org; gilverfernandez@osaconservation.org; operations@osaconservation.org
-          # Required sender full name (address can be skipped):
-          from: Chris Beirne # <user@example.com>
-          # Optional plain body:
-#          body: Build job of ${{github.repository}} completed successfully!
-          # Optional HTML body read from file:
+          subject: Campus guests and booking update - ${{ github.run_number }}
+          to: eleanorflatt@osaconservation.org,andydiaz@osaconservation.org,reservations@osaconservation.org,danielalvarez@osaconservation.org,iselacambronero@osaconservation.org,marielaprendas@osaconservation.org,gilverfernandez@osaconservation.org,operations@osaconservation.org
+          from: Campus Update Bot <${{secrets.MAIL_USERNAME}}>
           html_body: file://index.html
-          # Optional carbon copy recipients:
-          cc: #chrisbeirne@osaconservation.org; 
-          # Optional blind carbon copy recipients:
-          # bcc: r2d2@example.com,hansolo@example.com
-          # Optional recipient of the email response:
-          # reply_to: luke@example.com
-          # Optional Message ID this message is replying to:
-          # in_reply_to: <random-luke@example.com>
-          ## Optional unsigned/invalid certificates allowance:
           ignore_cert: true
-          # Optional converting Markdown to HTML (set content_type to text/html too):
-          convert_markdown: true
-          # Optional attachments:
-          # attachments: attachments.zip,git.diff,./dist/static/*.js
-          # Optional priority: 'high', 'normal' (default) or 'low'
+          convert_markdown: false # HTML already rendered
           priority: normal
