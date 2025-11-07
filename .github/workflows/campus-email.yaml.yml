@@ -1,33 +1,45 @@
 name: scheduleRenderbook
+
 on:     
-  push: 
+  push:
+    branches:
+      - main  # Only run on main branch pushes (prevents accidental triggers)
   schedule:     
-     - cron: "45 11 * * *"  # Runs at 11:45 UTC daily
+    - cron: "45 11 * * *"
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
      
 jobs:
   bookdown:
     name: Render-Report-Send-Email
     runs-on: ubuntu-latest
+    
+    # Security: Restrict permissions to minimum needed
+    permissions:
+      contents: read
+      
     steps: 
       - uses: actions/checkout@v4
       
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: '4.3.0'
-          use-public-rspm: true  # Use pre-compiled binaries - MUCH faster!
+          use-public-rspm: true
           
       - uses: r-lib/actions/setup-pandoc@v2
       
-      - name: Install TinyTeX
-        uses: r-lib/actions/setup-tinytex@v2
-        env:
-          TINYTEX_INSTALLER: TinyTeX
+      # Cache system dependencies to speed up builds
+      - name: Cache apt packages
+        uses: actions/cache@v3
+        with:
+          path: /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/*.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
       
-      # Install system dependencies for R packages
       - name: Install system dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
             libcurl4-openssl-dev \
             libssl-dev \
             libxml2-dev \
@@ -38,46 +50,96 @@ jobs:
             libpng-dev \
             libtiff5-dev \
             libjpeg-dev
+          sudo apt-get clean
+          sudo rm -rf /var/lib/apt/lists/*
       
-      # Cache R packages BEFORE installing
+      - name: Install TinyTeX
+        uses: r-lib/actions/setup-tinytex@v2
+        env:
+          TINYTEX_INSTALLER: TinyTeX
+      
+      # Cache TinyTeX packages
+      - name: Cache TinyTeX packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.TinyTeX
+          key: ${{ runner.os }}-tinytex-${{ hashFiles('**/*.Rmd') }}
+          restore-keys: |
+            ${{ runner.os }}-tinytex-
+      
+      # Cache R packages with better key
       - name: Cache R packages
         uses: actions/cache@v3
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-4.3.0-${{ hashFiles('**/DESCRIPTION') }}
+          key: ${{ runner.os }}-r-4.3.0-pkgs-${{ hashFiles('.github/workflows/*.yaml') }}
           restore-keys: |
+            ${{ runner.os }}-r-4.3.0-pkgs-
             ${{ runner.os }}-r-4.3.0-
-            ${{ runner.os }}-r-
       
-      # Install all R packages
       - name: Install R packages
         run: |
           Rscript -e 'install.packages(c("rmarkdown", "glue", "kableExtra", "dplyr", "viridis", "lubridate", "googlesheets4"))'
       
-      - name: Render Book
+      # Security: Use environment for sensitive data
+      - name: Render Report
         env:
           GDRIVE_PAT: ${{ secrets.GDRIVE_PAT }}
-        run: Rscript -e 'rmarkdown::render("index.Rmd")'
+        run: |
+          Rscript -e 'rmarkdown::render("index.Rmd")'
+        
+      # Add error handling - only send email if render succeeds
+      - name: Check render output exists
+        run: |
+          if [ ! -f "index.html" ]; then
+            echo "ERROR: index.html was not generated"
+            exit 1
+          fi
+          echo "Render successful - file size: $(wc -c < index.html) bytes"
       
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: index-html
+          name: report-${{ github.run_number }}
           path: index.html
           retention-days: 7
       
-      - name: Send mail
+      # Only send email if everything succeeded
+      - name: Send email notification
+        if: success()
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com
           server_port: 465
           secure: true
-          username: ${{secrets.MAIL_USERNAME}}
-          password: ${{secrets.MAIL_PASSWORD}}
-          subject: Campus guests and booking update - ${{ github.run_number }}
-          to: eleanorflatt@osaconservation.org,andydiaz@osaconservation.org,reservations@osaconservation.org,danielalvarez@osaconservation.org,iselacambronero@osaconservation.org,marielaprendas@osaconservation.org,gilverfernandez@osaconservation.org,operations@osaconservation.org
-          from: Campus Update Bot <${{secrets.MAIL_USERNAME}}>
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Campus Update - ${{ github.run_number }} ($(date +'%Y-%m-%d'))"
+          to: ${{ secrets.EMAIL_RECIPIENTS }}  # Move to secret for easier management
+          from: Campus Update Bot <${{ secrets.MAIL_USERNAME }}>
           html_body: file://index.html
           ignore_cert: true
           convert_markdown: false
           priority: normal
+          
+      # Send failure notification to admin only
+      - name: Notify on failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "⚠️ Campus Update Failed - Run #${{ github.run_number }}"
+          to: ${{ secrets.ADMIN_EMAIL }}  # Only notify admin on failures
+          from: Campus Update Bot <${{ secrets.MAIL_USERNAME }}>
+          body: |
+            The daily campus update failed to generate.
+            
+            Run: ${{ github.run_number }}
+            Branch: ${{ github.ref }}
+            Commit: ${{ github.sha }}
+            
+            View logs: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
