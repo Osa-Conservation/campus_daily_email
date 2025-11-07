@@ -87,42 +87,41 @@ jobs:
           GDRIVE_PAT: ${{ secrets.GDRIVE_PAT }}
         run: |
           Rscript -e 'rmarkdown::render("index.Rmd")'
-        
-      # Add error handling - only send email if render succeeds
-      - name: Check render output exists
-        run: |
-          if [ ! -f "index.html" ]; then
-            echo "ERROR: index.html was not generated"
-            exit 1
-          fi
-          echo "Render successful - file size: $(wc -c < index.html) bytes"
-      
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: report-${{ github.run_number }}
-          path: index.html
-          retention-days: 7
-      
-    - name: Set date variable
-        run: echo "REPORT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+- name: Set report date
+  run: echo "REPORT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
 
-      - name: Send email notification
-        if: success()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.MAIL_USERNAME }}
-          password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Campus guests and booking update (${{ env.REPORT_DATE }})"
-          to: ${{ secrets.EMAIL_RECIPIENTS }}
-          from: Campus Update Bot <${{ secrets.MAIL_USERNAME }}>
-          html_body: file://index.html
-          ignore_cert: true
-          convert_markdown: false
-          priority: normal
+- name: Check render output exists
+  run: |
+    if [ ! -f "index.html" ]; then
+      echo "ERROR: index.html was not generated"
+      exit 1
+    fi
+    echo "Render successful - file size: $(wc -c < index.html) bytes"
+  
+- uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: report-${{ github.run_number }}
+    path: index.html
+    retention-days: 7
+  
+- name: Send email notification
+  if: success()
+  uses: dawidd6/action-send-mail@v3
+  with:
+    server_address: smtp.gmail.com
+    server_port: 465
+    secure: true
+    username: ${{ secrets.MAIL_USERNAME }}
+    password: ${{ secrets.MAIL_PASSWORD }}
+    subject: "Campus Guest and Booking Update (${{ env.REPORT_DATE }})"
+    to: ${{ secrets.EMAIL_RECIPIENTS }}
+    from: Campus Update Bot <${{ secrets.MAIL_USERNAME }}>
+    html_body: file://index.html
+    ignore_cert: true
+    convert_markdown: false
+    priority: normal        
+
           
       # Send failure notification to admin only
       - name: Notify on failure
