@@ -104,7 +104,9 @@ jobs:
           path: index.html
           retention-days: 7
       
-      # Only send email if everything succeeded
+    - name: Set date variable
+        run: echo "REPORT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
       - name: Send email notification
         if: success()
         uses: dawidd6/action-send-mail@v3
@@ -114,8 +116,8 @@ jobs:
           secure: true
           username: ${{ secrets.MAIL_USERNAME }}
           password: ${{ secrets.MAIL_PASSWORD }}
-          subject: "Campus Update - ${{ github.run_number }} ($(date +'%Y-%m-%d'))"
-          to: ${{ secrets.EMAIL_RECIPIENTS }}  # Move to secret for easier management
+          subject: "Campus guests and booking update (${{ env.REPORT_DATE }})"
+          to: ${{ secrets.EMAIL_RECIPIENTS }}
           from: Campus Update Bot <${{ secrets.MAIL_USERNAME }}>
           html_body: file://index.html
           ignore_cert: true
