@@ -1,0 +1,13 @@
+name: Keep workflows alive
+on:
+  schedule:
+    - cron: "0 0 1 * *"  # Monthly
+  workflow_dispatch:
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keep-alive@v1
