@@ -110,12 +110,15 @@ jobs:
         env:
           GDRIVE_PAT: ${{ secrets.GDRIVE_PAT }}
         run: |
-          Rscript -e 'library(googlesheets4)
-          googlesheets4::gs4_auth(path = Sys.getenv('GDRIVE_PAT'))
-          sheet <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", sheet = "Email_recipients")
-          emails <- paste(sheet$email, collapse = ",")
-          cat(paste0("EMAIL_RECIPIENTS=", emails, "\n"), 
-          file = Sys.getenv("GITHUB_ENV"), append = TRUE)
+          Rscript -e '
+            library(googlesheets4)
+            tmp <- tempfile(fileext = ".json")
+            writeLines(Sys.getenv("GDRIVE_PAT"), tmp)
+            gs4_auth(path = tmp)
+            sheet <- read_sheet("1h3a1H4UwZHDUUj_s6MWUVDrhn_qqlCm6PTM8lsaHMWA", sheet = "Email_recipients")
+            emails <- paste(sheet$email, collapse = ",")
+            cat(paste0("EMAIL_RECIPIENTS=", emails, "\n"),
+            file = Sys.getenv("GITHUB_ENV"), append = TRUE)
           '      
       
       - name: Send email notification
